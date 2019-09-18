@@ -32,10 +32,11 @@ class Dakon{
         }
         for(int i=8;i<15;i++){
             System.out.print(board[i]);
+            System.out.print(" ");
         }
         System.out.println();
         System.out.print(board[7]);
-        for(int i=0;i<11;i++){
+        for(int i=0;i<17;i++){
             System.out.print(" ");
         }
         System.out.println(board[15]);
@@ -44,6 +45,7 @@ class Dakon{
         }
         for(int i=6;i>=0;i--){
             System.out.print(board[i]);
+            System.out.print(" ");
         }
         System.out.println();
         System.out.println();
@@ -60,6 +62,7 @@ class Dakon{
     public int move(int row){
         int currentPieces;
         boolean finishTurn=false;
+        boolean alreadyOneTurn=false;
         int currentPlaces=row;
         currentPieces=board[row];
         board[row]=0;
@@ -72,9 +75,11 @@ class Dakon{
                         currentPlaces++;
                         if(currentPlaces==7&&turn!=1){
                             currentPlaces++;
+                            alreadyOneTurn=true;
                         }
                         else if(currentPlaces==15&&turn!=2){
                             currentPlaces=0;
+                            alreadyOneTurn=true;
                         }
                         if(currentPlaces==16){
                             currentPlaces=0;
@@ -96,9 +101,22 @@ class Dakon{
                     else if(board[currentPlaces]==1){
                         
                         if(turn==1){
+                            if(checkMove(turn,currentPlaces)){
+                                System.out.println("masuk check");
+                                if(alreadyOneTurn){
+                                    board[7]+=board[7+(7-currentPlaces)];
+                                    board[7+(7-currentPlaces)]=0;
+                                }
+                            }
                             return 2;               
                         }
                         else{
+                            if(checkMove(turn,currentPlaces)){
+                                if(alreadyOneTurn){
+                                    board[15]+=board[7-(currentPlaces-7)];
+                                    board[7-(currentPlaces-7)]=0;
+                                }
+                            }
                             return 1;
                         }
                     }
