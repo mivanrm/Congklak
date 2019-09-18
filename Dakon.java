@@ -1,3 +1,4 @@
+import java.util.*;
 class Dakon{
     private int board[];
     private int turn;
@@ -22,7 +23,7 @@ class Dakon{
     public int getTurn(){
         return turn;
     }
-    public void setBoard(int _turn){
+    public void setTurn(int _turn){
         turn=_turn;
     }
     public void print(){
@@ -47,6 +48,13 @@ class Dakon{
         System.out.println();
         System.out.println();
 
+    }
+    public static boolean checkMove(int turn,int position){
+        if(turn==1){
+            return position==0||position==1||position==2||position==3||position==4||position==5||position==6;
+        }
+        else
+            return position==8||position==9||position==10||position==11||position==12||position==13||position==14;
     }
     
     public int move(int row){
@@ -87,7 +95,12 @@ class Dakon{
                     }
                     else if(board[currentPlaces]==1){
                         
-                        return 0;
+                        if(turn==1){
+                            return 2;               
+                        }
+                        else{
+                            return 1;
+                        }
                     }
                     currentPieces=board[currentPlaces];
                     board[currentPlaces]=0;
@@ -101,9 +114,26 @@ class Dakon{
     }
     public static void main(String[] args) {
         Dakon test=new Dakon();
-        test.print();
-        test.move(2);
-        test.print();
+        Scanner scan =new Scanner(System.in);
+        System.out.println("Masukkan Pilihan Kotak");
+        System.out.println("Sekarang Giliran player"+test.getTurn());
+        int selectTile=scan.nextInt();
+        while(selectTile!=999){
+            
+            test.print();
+            if(checkMove(test.getTurn(), selectTile)){
+                test.setTurn(test.move(selectTile));
+                
+            }
+            else{
+                System.out.println("Move Tidak Valid");
+                
+            }
+            System.out.println("Sekarang Giliran player"+test.getTurn());
+            selectTile=scan.nextInt();
+        }
+
+            
     }
    
 }
