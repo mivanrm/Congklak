@@ -67,8 +67,6 @@ class Dakon{
         currentPieces=board[row];
         board[row]=0;
             try{
-                
-                print();
                 while(!finishTurn){
                     while(currentPieces>0){
                         System.out.println("Current Pieces="+currentPieces);
@@ -102,7 +100,6 @@ class Dakon{
                         
                         if(turn==1){
                             if(checkMove(turn,currentPlaces)){
-                                System.out.println("masuk check");
                                 if(alreadyOneTurn){
                                     board[7]+=board[7+(7-currentPlaces)];
                                     board[7+(7-currentPlaces)]=0;
@@ -133,6 +130,7 @@ class Dakon{
     public static void main(String[] args) {
         Dakon test=new Dakon();
         Scanner scan =new Scanner(System.in);
+        test.print();
         System.out.println("Masukkan Pilihan Kotak");
         System.out.println("Sekarang Giliran player"+test.getTurn());
         int selectTile=scan.nextInt();
@@ -147,6 +145,7 @@ class Dakon{
                 System.out.println("Move Tidak Valid");
                 
             }
+            test.print();
             System.out.println("Sekarang Giliran player"+test.getTurn());
             selectTile=scan.nextInt();
         }
