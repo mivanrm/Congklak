@@ -51,7 +51,10 @@ class Dakon{
         System.out.println();
 
     }
-    public static boolean checkMove(int turn,int position){
+    public boolean checkMove(int position){
+        if(board[position]==0){
+            return false;
+        }
         if(turn==1){
             return position==0||position==1||position==2||position==3||position==4||position==5||position==6;
         }
@@ -99,7 +102,7 @@ class Dakon{
                     else if(board[currentPlaces]==1){
                         
                         if(turn==1){
-                            if(checkMove(turn,currentPlaces)){
+                            if(checkMove(currentPlaces)){
                                 if(alreadyOneTurn){
                                     board[7]+=board[7+(7-currentPlaces)];
                                     board[7+(7-currentPlaces)]=0;
@@ -108,7 +111,7 @@ class Dakon{
                             return 2;               
                         }
                         else{
-                            if(checkMove(turn,currentPlaces)){
+                            if(checkMove(currentPlaces)){
                                 if(alreadyOneTurn){
                                     board[15]+=board[7-(currentPlaces-7)];
                                     board[7-(currentPlaces-7)]=0;
@@ -128,25 +131,25 @@ class Dakon{
         return 0;
     }
     public static void main(String[] args) {
-        Dakon test=new Dakon();
+        Dakon dakonBoard=new Dakon();
         Scanner scan =new Scanner(System.in);
-        test.print();
+        dakonBoard.print();
         System.out.println("Masukkan Pilihan Kotak");
-        System.out.println("Sekarang Giliran player"+test.getTurn());
+        System.out.println("Sekarang Giliran player"+dakonBoard.getTurn());
         int selectTile=scan.nextInt();
         while(selectTile!=999){
             
-            test.print();
-            if(checkMove(test.getTurn(), selectTile)){
-                test.setTurn(test.move(selectTile));
+            dakonBoard.print();
+            if(dakonBoard.checkMove(selectTile)){
+                dakonBoard.setTurn(dakonBoard.move(selectTile));
                 
             }
             else{
                 System.out.println("Move Tidak Valid");
                 
             }
-            test.print();
-            System.out.println("Sekarang Giliran player"+test.getTurn());
+            dakonBoard.print();
+            System.out.println("Sekarang Giliran player"+dakonBoard.getTurn());
             selectTile=scan.nextInt();
         }
 
