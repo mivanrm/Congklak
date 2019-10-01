@@ -5,8 +5,8 @@ public class Dakon{
         boolean turnplayer1 = dakonboard.getPlayer1Turn();
         int[] tempboard = new int[14];
         int[] player = new int[2];
-        player[0] = dakonboard.getPlayer1();
-        player[1] = dakonboard.getPlayer2();
+        player[0] = dakonboard.getPlayer()[0];
+        player[1] = dakonboard.getPlayer()[1];
         for(int i=0; i<14; i++){
            tempboard[i] = dakonboard.getinBoard(i);
         }
