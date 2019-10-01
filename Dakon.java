@@ -1,162 +1,179 @@
-import java.util.*;
-class Dakon{
-    private int board[];
-    private int turn;
-    Dakon(){
-        board=new int[16];
-        turn=1;
-        for(int i=0;i<board.length;i++){
-            if(i!=7&&i!=15){
-                board[i]=7;
-            }
-            else{
-                board[i]=0;
-            }
-        }
-    }
-    public int getBoard(int place){
-        return board[place];
-    }
-    public void setBoard(int place,int value){
-        board[place]=value;
-    }
-    public int getTurn(){
-        return turn;
-    }
-    public void setTurn(int _turn){
-        turn=_turn;
-    }
-    public void print(){
-        for(int i=0;i<3;i++){
-            System.out.print(" ");
-        }
-        for(int i=8;i<15;i++){
-            System.out.print(board[i]);
-            System.out.print(" ");
-        }
-        System.out.println();
-        System.out.print(board[7]);
-        for(int i=0;i<17;i++){
-            System.out.print(" ");
-        }
-        System.out.println(board[15]);
-        for(int i=0;i<3;i++){
-            System.out.print(" ");
-        }
-        for(int i=6;i>=0;i--){
-            System.out.print(board[i]);
-            System.out.print(" ");
-        }
-        System.out.println();
-        System.out.println();
+import java.util.Scanner;
 
-    }
-    public boolean checkMove(int position){
-        if(board[position]==0){
-            return false;
+public class Dakon{
+    static DakonBoard move(DakonBoard dakonboard,int idx) {
+        boolean turnplayer1 = dakonboard.getPlayer1Turn();
+        int[] tempboard = new int[14];
+        int[] player = new int[2];
+        player[0] = dakonboard.getPlayer1();
+        player[1] = dakonboard.getPlayer2();
+        for(int i=0; i<14; i++){
+           tempboard[i] = dakonboard.getinBoard(i);
         }
-        if(turn==1){
-            return position==0||position==1||position==2||position==3||position==4||position==5||position==6;
+        if (turnplayer1 && idx > 6) {
+            return dakonboard;
+        } else if (!turnplayer1 && idx < 7){
+            return dakonboard;
         }
-        else
-            return position==8||position==9||position==10||position==11||position==12||position==13||position==14;
+        if (tempboard[idx] == 0) {
+            return dakonboard;
+        }
+        int space = (idx + 1) % 14;
+        boolean lastStore = false;
+        // Jika ada biji
+        while (tempboard[idx] != 0) {
+            tempboard[idx] = tempboard[idx]-1;
+            if (!lastStore && turnplayer1 && space == 6) {
+                player[0]++;
+                lastStore = true;
+            } else if (!lastStore && !turnplayer1 && space == 0) {
+                player[1]++;
+                lastStore = true;
+            } else {
+                tempboard[space]++;
+                space = (space + 1) % 14;
+                lastStore = false;
+            }
+        }
+        // checks if dropped in your own store on last move, do not go past
+        if (lastStore) {
+            return new DakonBoard(tempboard, player[0], player[1], turnplayer1);
+        }
+        // set to last space
+        space = Math.floorMod(space - 1, 14);
+        // checks if dropped in an empty hole on your side, and there are pieces across
+        if (turnplayer1 && space < 7 && tempboard[space] == 1 && tempboard[13 - space] > 0) {
+            player[0] += tempboard[13 - space] + 1;
+            tempboard[13 - space] = 0;
+            tempboard[space] = 0;
+        } else if (!turnplayer1 && space > 5 && tempboard[space] == 1 && tempboard[13 - space] > 0) {
+            player[1] += tempboard[13 - space] + 1;
+            tempboard[13 - space] = 0;
+            tempboard[space] = 0;
+        }
+        // set to next player's move
+        turnplayer1 = !turnplayer1;
+        return new DakonBoard(tempboard, player[0], player[1], turnplayer1);
     }
-    
-    public int move(int row){
-        int currentPieces;
-        boolean finishTurn=false;
-        boolean alreadyOneTurn=false;
-        int currentPlaces=row;
-        currentPieces=board[row];
-        board[row]=0;
-            try{
-                while(!finishTurn){
-                    while(currentPieces>0){
-                        System.out.println("Current Pieces="+currentPieces);
-                        currentPlaces++;
-                        if(currentPlaces==7&&turn!=1){
-                            currentPlaces++;
-                            alreadyOneTurn=true;
-                        }
-                        else if(currentPlaces==15&&turn!=2){
-                            currentPlaces=0;
-                            alreadyOneTurn=true;
-                        }
-                        if(currentPlaces==16){
-                            currentPlaces=0;
-                        }
-                        board[currentPlaces]++;
-                        currentPieces--;
-                        Thread.sleep(1000);
-                        
-                        print();
-                    }
-                    if(turn==1&&currentPlaces==7){
-                        return 1;
-                        
-                    }
-                    else if(turn==2&&currentPlaces==15){
-                        
-                        return 2;
-                    }
-                    else if(board[currentPlaces]==1){
-                        
-                        if(turn==1){
-                            if(checkMove(currentPlaces)){
-                                if(alreadyOneTurn){
-                                    board[7]+=board[7+(7-currentPlaces)];
-                                    board[7+(7-currentPlaces)]=0;
-                                }
-                            }
-                            return 2;               
-                        }
-                        else{
-                            if(checkMove(currentPlaces)){
-                                if(alreadyOneTurn){
-                                    board[15]+=board[7-(currentPlaces-7)];
-                                    board[7-(currentPlaces-7)]=0;
-                                }
-                            }
-                            return 1;
-                        }
-                    }
-                    currentPieces=board[currentPlaces];
-                    board[currentPlaces]=0;
-                    
+
+    static int mini_max(DakonBoard dakonboard, int depth) {
+        if (depth == 0 || dakonboard.is_No_Move()) {
+            return dakonboard.getHeuristic();
+        }
+        if (dakonboard.getPlayer1Turn()) {
+            int bestVal = Integer.MIN_VALUE;
+            for (int i = 0; i < 7; i++) {
+                DakonBoard newboard = move(dakonboard,i);
+                if (!newboard.equals(dakonboard)) {
+                    int val = mini_max(newboard, depth - 1);
+                    bestVal = Math.max(val, bestVal);
                 }
             }
-            catch (InterruptedException e) {
-                System.err.format("IOException: %s%n", e);
+            return bestVal;
+        } else {
+            int bestVal = Integer.MAX_VALUE;
+            for (int i = 7; i < 14; i++) {
+                DakonBoard newboard = move(dakonboard,i);
+                if (!newboard.equals(dakonboard)) {
+                    int val = mini_max(newboard, depth - 1);
+                    bestVal = Math.min(val, bestVal);
+                }
             }
-        return 0;
-    }
-    public static void main(String[] args) {
-        Dakon dakonBoard=new Dakon();
-        Scanner scan =new Scanner(System.in);
-        dakonBoard.print();
-        System.out.println("Masukkan Pilihan Kotak");
-        System.out.println("Sekarang Giliran player"+dakonBoard.getTurn());
-        int selectTile=scan.nextInt();
-        while(selectTile!=999){
-            
-            dakonBoard.print();
-            if(dakonBoard.checkMove(selectTile)){
-                dakonBoard.setTurn(dakonBoard.move(selectTile));
-                
-            }
-            else{
-                System.out.println("Move Tidak Valid");
-                
-            }
-            dakonBoard.print();
-            System.out.println("Sekarang Giliran player"+dakonBoard.getTurn());
-            selectTile=scan.nextInt();
+            return bestVal;
         }
-
-            
     }
-   
+
+    static int alphabeta(DakonBoard dakonboard, int depth, int alpha, int beta) {
+        if (depth == 0 || dakonboard.is_No_Move()) {
+            return dakonboard.getHeuristic();
+        }
+        if (dakonboard.getPlayer1Turn()) {
+            int bestVal = Integer.MIN_VALUE;
+            for (int i = 0; i < 7; i++) {
+                DakonBoard newboard = move(dakonboard,i);
+                if (!newboard.equals(dakonboard)) {
+                    int val = alphabeta(newboard, depth - 1, alpha, beta);
+                    bestVal = Math.max(val, bestVal);
+                    alpha = Math.max(alpha, val);
+                    if (beta <= alpha) {
+                        break;
+                    }
+                }
+            }
+            return bestVal;
+        } else {
+            int bestVal = Integer.MAX_VALUE;
+            for (int i = 7; i < 14; i++) {
+                DakonBoard newboard = move(dakonboard,i);
+                if (!newboard.equals(dakonboard)) {
+                    int val = alphabeta(newboard, depth - 1, alpha, beta);
+                    bestVal = Math.min(val, bestVal);
+                    beta = Math.min(beta, val);
+                    if (beta <= alpha) {
+                        break;
+                    }
+                }
+            }
+            return bestVal;
+        }
+    }
+
+    static int chooseMove(DakonBoard dakonboard) {
+        // p1's turn
+        if (dakonboard.getPlayer1Turn()) {
+            int bestVal = Integer.MIN_VALUE;
+            int max = 0;
+            for (int i = 0; i < 7; i++) {
+                DakonBoard newboard = move(dakonboard,i);
+                if (!newboard.equals(dakonboard)) {
+                    int val = alphabeta(newboard, 10, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                    if (val > bestVal) {
+                        max = i;
+                        bestVal = val;
+                    }
+                }
+            }
+            return max;
+        } else {
+            int bestVal = Integer.MAX_VALUE;
+            int min = 0;
+            for (int i = 7; i < 14; i++) {
+                DakonBoard newboard = move(dakonboard,i);
+                if (!newboard.equals(dakonboard)) {
+                    int val = alphabeta(newboard, 10, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                    if (val < bestVal) {
+                        min = i;
+                        bestVal = val;
+                    }
+                }
+            }
+            return min;
+        }
+    }
+
+    public static void main(String[] args) {
+        DakonBoard dakonboard = new DakonBoard();
+        Scanner s = new Scanner(System.in);
+        System.out.print("Pilih sebagai Player 1 atau Player 2 : ");
+        int player = s.nextInt();
+        while(!dakonboard.is_No_Move()) {
+            dakonboard.print();
+            if ((player == 1 && dakonboard.getPlayer1Turn()) || (player == 2 && !dakonboard.getPlayer1Turn())) {
+                System.out.println("Your turn: ");
+                int move = s.nextInt();
+                DakonBoard next = Dakon.move(dakonboard,move);
+                if (dakonboard.equals(next)) {
+                    System.out.println("Move invalid!");
+                } else {
+                    dakonboard = next;
+                }
+            } else {
+                int move = Dakon.chooseMove(dakonboard);
+                System.out.println(move);
+                dakonboard = move(dakonboard,move);
+            }
+        }
+        dakonboard.print();
+    }
+
 }
-
-
-
