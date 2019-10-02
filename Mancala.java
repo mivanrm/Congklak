@@ -102,10 +102,14 @@ public class Mancala {
             for (int i = 0; i < 6; i++) {
                 MancalaBoard newBoard = move(i, m);
                 if (!newBoard.equals(m)) {
+                    int tempAlpha=alpha;  
                     int val = alphaBeta(newBoard, depth - 1, alpha, beta);
+                    
                     bestValue = Math.max(val, bestValue);
                     alpha = Math.max(alpha, val);
+                    
                     if (beta <= alpha) {
+                        System.out.println("masuk");
                         break;
                     }
                 }
@@ -119,7 +123,9 @@ public class Mancala {
                     int val = alphaBeta(newBoard, depth - 1, alpha, beta);
                     bestValue = Math.min(val, bestValue);
                     beta = Math.min(beta, val);
+                    
                     if (beta <= alpha) {
+                        System.out.println("masuk");
                         break;
                     }
                 }

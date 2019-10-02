@@ -14,11 +14,10 @@ public class DakonBoard{
         player[1] = 0;
     }
 
-    public DakonBoard(int[] board, int poin1, int poin2, boolean turnplayer1) {
+    public DakonBoard(int[] board, int[] player, boolean turnplayer1) {
         this.board = board;
+        this.player = player;
         this.turnplayer1 = turnplayer1;
-        this.player[0] = poin1;
-        this.player[1] = poin2;
 
     }
 
